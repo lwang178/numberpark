@@ -51,8 +51,8 @@ export const navItems: NavItem[] = [
     ]
   },
   {
-    title: 'Kanban',
-    url: '/dashboard/kanban',
+    title: 'port-request',
+    url: '/dashboard/port-request',
     icon: 'kanban',
     shortcut: ['k', 'k'],
     isActive: false,
