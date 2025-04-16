@@ -1,4 +1,4 @@
-import { getAuth } from '@clerk/nextjs/server';
+import { auth } from '@clerk/nextjs/server';
 import { headers } from 'next/headers';
 import { PrismaClient } from '@prisma/client';
 import { redirect } from 'next/navigation';
@@ -8,8 +8,7 @@ const prisma = new PrismaClient();
 const ADMIN_IDS = ['user_2vmSdqGLddgopTSLeGKl9sKcAe1'];
 
 export default async function AdminPage() {
-  const authHeaders = await headers();
-  const { userId } = getAuth({ headers: authHeaders });
+  const { userId } = await auth();
 
   if (!userId || !ADMIN_IDS.includes(userId)) {
     redirect('/sign-in');

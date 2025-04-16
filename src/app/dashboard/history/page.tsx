@@ -1,12 +1,10 @@
-import { getAuth } from '@clerk/nextjs/server';
-import { headers } from 'next/headers';
+import { auth } from '@clerk/nextjs/server';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 export default async function HistoryPage() {
-  const authHeaders = await headers();
-  const { userId } = getAuth({ headers: authHeaders });
+  const { userId } = await auth();
 
   if (!userId) {
     return <div>Not authorized</div>;

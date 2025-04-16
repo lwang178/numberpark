@@ -1,15 +1,13 @@
 'use server';
 
-import { getAuth } from '@clerk/nextjs/server';
-import { headers } from 'next/headers';
+import { auth } from '@clerk/nextjs/server';
 import { PrismaClient } from '@prisma/client';
 import { redirect } from 'next/navigation';
 
 const prisma = new PrismaClient();
 
 export async function createPortRequest(formData: FormData) {
-  const authHeaders = await headers(); // ✅ now awaited
-  const { userId } = getAuth({ headers: authHeaders });
+  const { userId } = await auth();
 
   if (!userId) throw new Error('Unauthorized');
 
