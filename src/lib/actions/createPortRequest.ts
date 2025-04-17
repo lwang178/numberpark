@@ -1,5 +1,7 @@
 'use server';
 
+console.log('🧪 Loaded DATABASE_URL:', process.env.DATABASE_URL);
+
 import { auth } from '@clerk/nextjs/server';
 import { PrismaClient } from '@prisma/client';
 import { redirect } from 'next/navigation';
