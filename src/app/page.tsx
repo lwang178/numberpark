@@ -4,9 +4,9 @@ import Link from 'next/link';
 
 export default function HomePage() {
   return (
-    <main className='flex min-h-screen flex-col'>
+    <main className='min-h-screen overflow-x-hidden bg-white'>
       {/* Hero Section */}
-      <section className='flex flex-1 flex-col items-center justify-center bg-gradient-to-br from-yellow-100 to-white px-6 py-24 text-center'>
+      <section className='flex h-screen flex-col items-center justify-center bg-gradient-to-br from-yellow-100 to-white px-6 py-24 text-center'>
         <h1 className='mb-4 text-5xl font-bold'>
           Porting Numbers Made Simple 🍌
         </h1>
