@@ -1,10 +1,8 @@
 'use client';
 
-import Link from 'next/link';
-
 export default function HomePage() {
   return (
-    <main className='min-h-screen overflow-x-hidden bg-white'>
+    <main className='bg-white'>
       {/* Hero Section */}
       <section className='flex h-screen flex-col items-center justify-center bg-gradient-to-br from-yellow-100 to-white px-6 py-24 text-center'>
         <h1 className='mb-4 text-5xl font-bold'>
@@ -26,27 +24,7 @@ export default function HomePage() {
       <section className='bg-white py-20 text-center'>
         <h2 className='mb-12 text-3xl font-bold'>How It Works</h2>
         <div className='mx-auto grid max-w-6xl grid-cols-1 gap-8 px-6 md:grid-cols-3'>
-          <div className='rounded-xl border p-6 shadow-sm'>
-            <h3 className='mb-2 text-xl font-semibold'>📤 Submit</h3>
-            <p className='text-gray-600'>
-              Users enter porting details like name, address, account number,
-              and PIN.
-            </p>
-          </div>
-          <div className='rounded-xl border p-6 shadow-sm'>
-            <h3 className='mb-2 text-xl font-semibold'>🔍 Review</h3>
-            <p className='text-gray-600'>
-              Admins review submissions in a unified dashboard with status
-              control.
-            </p>
-          </div>
-          <div className='rounded-xl border p-6 shadow-sm'>
-            <h3 className='mb-2 text-xl font-semibold'>✅ Approve</h3>
-            <p className='text-gray-600'>
-              Approve requests, and users are instantly notified of status
-              updates.
-            </p>
-          </div>
+          {/* Cards */}
         </div>
       </section>
 
@@ -54,30 +32,7 @@ export default function HomePage() {
       <section className='bg-gray-50 py-20 text-center'>
         <h2 className='mb-10 text-3xl font-bold'>Why BananaPlan?</h2>
         <ul className='mx-auto grid max-w-4xl grid-cols-1 gap-6 px-6 text-left md:grid-cols-2'>
-          <li className='flex items-start gap-3'>
-            <span className='text-lg text-green-600'>✔</span>
-            <span className='text-gray-700'>
-              Secure, Clerk-powered authentication
-            </span>
-          </li>
-          <li className='flex items-start gap-3'>
-            <span className='text-lg text-green-600'>✔</span>
-            <span className='text-gray-700'>
-              Live dashboard for real-time updates
-            </span>
-          </li>
-          <li className='flex items-start gap-3'>
-            <span className='text-lg text-green-600'>✔</span>
-            <span className='text-gray-700'>
-              Built on Supabase + Prisma + Next.js
-            </span>
-          </li>
-          <li className='flex items-start gap-3'>
-            <span className='text-lg text-green-600'>✔</span>
-            <span className='text-gray-700'>
-              Admin panel with inline status editing
-            </span>
-          </li>
+          {/* Features */}
         </ul>
       </section>
 
