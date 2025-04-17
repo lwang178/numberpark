@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { StatusDropdown } from '@/components/StatusDropdown';
 
 const prisma = new PrismaClient();
-const ADMIN_IDS = ['user_2vmSdqGLddgopTSLeGKl9sKcAe1'];
+const ADMIN_IDS = ['user_2vpBA1Lo423ofCFjxK3JFemNg1a'];
 
 export default async function AdminPage() {
   const { userId } = await auth();
