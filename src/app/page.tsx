@@ -8,7 +8,7 @@ export default function HomePage() {
         A modern platform for managing porting requests with trust and speed.
       </p>
       <a
-        href='https://accounts.bananaplan.org/sign-in'
+        href='https://accounts.bananaplan.org/sign-in?redirect_url=https://www.bananaplan.org/dashboard'
         className='rounded-full bg-yellow-400 px-6 py-3 font-medium text-black transition hover:bg-yellow-500'
       >
         Get Started
