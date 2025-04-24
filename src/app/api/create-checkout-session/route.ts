@@ -1,17 +1,13 @@
 // /app/api/create-checkout-session/route.ts
+import { cookies } from 'next/headers';
+import { createServerClient } from '@supabase/auth-helpers-nextjs';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { auth } from '@clerk/nextjs/server';
-import { createClient } from '@supabase/supabase-js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-03-31.basil'
+  apiVersion: '2023-10-16'
 });
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY! // use service role key on server
-);
 
 export async function POST(req: Request) {
   const { userId } = auth();
@@ -21,13 +17,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // get user email from Clerk
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { cookies }
+  );
+
+  // fetch Clerk user email
   const userResponse = await fetch(`https://api.clerk.dev/v1/users/${userId}`, {
     headers: {
       Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`
     }
   });
-
   const user = await userResponse.json();
   const email = user?.email_addresses?.[0]?.email_address;
 
@@ -35,7 +36,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Email not found' }, { status: 400 });
   }
 
-  // look up existing stripe customer
   let { data: existing, error } = await supabase
     .from('customers')
     .select('stripe_customer_id')
@@ -45,8 +45,7 @@ export async function POST(req: Request) {
   let customerId = existing?.stripe_customer_id;
 
   if (!customerId) {
-    // fetch latest port request to get name
-    const { data: portData, error: portError } = await supabase
+    const { data: portData } = await supabase
       .from('port_requests')
       .select('firstname, lastname, number')
       .eq('user_id', userId)
@@ -58,6 +57,7 @@ export async function POST(req: Request) {
       ? `${portData.firstname} ${portData.lastname}`.trim()
       : '';
     const description = portData?.number || '';
+
     const customer = await stripe.customers.create({
       email,
       name,
@@ -65,6 +65,7 @@ export async function POST(req: Request) {
     });
 
     customerId = customer.id;
+
     await supabase
       .from('customers')
       .insert({ clerk_id: userId, stripe_customer_id: customer.id });
