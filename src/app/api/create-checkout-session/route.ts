@@ -50,7 +50,7 @@ export async function POST(req: Request) {
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(1)
-        .maybeSingle();
+        .single();
 
       const name = portData ? `${portData.firstname} ${portData.lastname}` : '';
       const description = portData?.number || '';

@@ -66,6 +66,17 @@ const PortRequestPage = () => {
       body: JSON.stringify({ priceId: 'price_1RH9pPInEkfFxa3EXD2y65C2' }) // replace with your actual Stripe Price ID
     });
 
+    if (!res.ok) {
+      const text = await res.text();
+      console.error(
+        'Stripe checkout session creation failed:',
+        res.status,
+        text
+      );
+      alert('创建结账会话失败，请联系支持 / Failed to create checkout session');
+      return;
+    }
+
     const { url } = await res.json();
     if (url) {
       window.location.href = url;
