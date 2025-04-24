@@ -1,8 +1,27 @@
-'use client';
+'use server';
 
+import { PrismaClient } from '@prisma/client';
+import { auth } from '@clerk/nextjs/server';
 import Link from 'next/link';
 
-export default function HistoryPage() {
+const prisma = new PrismaClient();
+
+export default async function HistoryPage() {
+  const { userId } = auth();
+
+  if (!userId) {
+    return (
+      <div className='py-20 text-center text-gray-500'>
+        未登录，请重新登录。
+      </div>
+    );
+  }
+
+  const requests = await prisma.portRequest.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'desc' }
+  });
+
   return (
     <main className='min-h-screen bg-white px-6 py-12'>
       <div className='mx-auto max-w-4xl'>
@@ -19,7 +38,7 @@ export default function HistoryPage() {
           </Link>
         </div>
 
-        {/* Table Placeholder */}
+        {/* History Table */}
         <div className='overflow-x-auto rounded-lg border shadow-sm'>
           <table className='min-w-full text-left text-sm'>
             <thead className='bg-gray-100 text-gray-600 uppercase'>
@@ -31,18 +50,39 @@ export default function HistoryPage() {
               </tr>
             </thead>
             <tbody className='text-gray-700'>
-              {/* Example Row */}
-              <tr className='border-t'>
-                <td className='px-4 py-3'>张三</td>
-                <td className='px-4 py-3'>123456789</td>
-                <td className='px-4 py-3'>
-                  <span className='inline-block rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-700'>
-                    待审核
-                  </span>
-                </td>
-                <td className='px-4 py-3'>2024/04/18</td>
-              </tr>
-              {/* More rows would go here... */}
+              {requests.map((req) => (
+                <tr key={req.id} className='border-t'>
+                  <td className='px-4 py-3'>{req.firstName}</td>
+                  <td className='px-4 py-3'>{req.accountNumber}</td>
+                  <td className='px-4 py-3'>
+                    <span
+                      className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${
+                        req.status === 'pending'
+                          ? 'bg-yellow-100 text-yellow-700'
+                          : req.status === 'approved'
+                            ? 'bg-green-100 text-green-700'
+                            : req.status === 'rejected'
+                              ? 'bg-red-100 text-red-700'
+                              : req.status === 'processing'
+                                ? 'bg-blue-100 text-blue-700'
+                                : 'bg-gray-200 text-gray-700'
+                      }`}
+                    >
+                      {req.status}
+                    </span>
+                  </td>
+                  <td className='px-4 py-3'>
+                    {new Date(req.createdAt).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+              {requests.length === 0 && (
+                <tr>
+                  <td colSpan={4} className='py-6 text-center text-gray-400'>
+                    暂无申请记录。
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

@@ -1,23 +1,26 @@
 import { PrismaClient } from '@prisma/client';
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
-const ADMIN_IDS = ['user_2vmSdqGLddgopTSLeGKl9sKcAe1']; // Replace
 
-export async function POST(req: NextRequest) {
-  const { userId } = await auth();
+export async function POST(req: Request) {
+  const form = await req.formData();
+  const id = form.get('id') as string;
+  const status = form.get('status') as string;
 
-  if (!userId || !ADMIN_IDS.includes(userId)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!id || !status) {
+    return NextResponse.json({ error: 'Missing data' }, { status: 400 });
   }
 
-  const { id, status } = await req.json();
+  try {
+    await prisma.portRequest.update({
+      where: { id },
+      data: { status }
+    });
 
-  const updated = await prisma.portRequest.update({
-    where: { id },
-    data: { status }
-  });
-
-  return NextResponse.json({ success: true, updated });
+    return NextResponse.redirect(new URL('/admin', req.url));
+  } catch (error) {
+    console.error('Status update failed:', error);
+    return NextResponse.json({ error: 'Update failed' }, { status: 500 });
+  }
 }

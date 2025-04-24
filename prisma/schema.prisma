@@ -23,3 +23,10 @@ model PortRequest {
   createdAt      DateTime @default(now())
 }
 
+model PortabilityCheck {
+  id          String   @id @default(cuid())
+  userId      String
+  phoneNumber String
+  createdAt   DateTime @default(now())
+}
+
