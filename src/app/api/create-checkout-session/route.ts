@@ -1,13 +1,15 @@
-// /app/api/create-checkout-session/route.ts
-import { cookies } from 'next/headers';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { auth } from '@clerk/nextjs/server';
+import { createClient } from '@supabase/supabase-js';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-03-31.basil'
-});
+// Use the service role key for secure server-side operations
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: Request) {
   const { userId } = auth();
@@ -17,14 +19,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const supabase = createRouteHandlerClient({ cookies });
-
   // fetch Clerk user email
   const userResponse = await fetch(`https://api.clerk.dev/v1/users/${userId}`, {
     headers: {
       Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`
     }
   });
+
   const user = await userResponse.json();
   const email = user?.email_addresses?.[0]?.email_address;
 
@@ -32,6 +33,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Email not found' }, { status: 400 });
   }
 
+  // Check for existing Stripe customer
   let { data: existing } = await supabase
     .from('customers')
     .select('stripe_customer_id')
@@ -49,9 +51,7 @@ export async function POST(req: Request) {
       .limit(1)
       .single();
 
-    const name = portData
-      ? `${portData.firstname} ${portData.lastname}`.trim()
-      : '';
+    const name = portData ? `${portData.firstname} ${portData.lastname}` : '';
     const description = portData?.number || '';
 
     const customer = await stripe.customers.create({
