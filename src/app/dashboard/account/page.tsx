@@ -26,8 +26,7 @@ const DashboardOverview = () => {
         )
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
+        .limit(1);
 
       if (error) {
         console.error('Error fetching port request:', error);
