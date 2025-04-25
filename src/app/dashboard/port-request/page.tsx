@@ -48,9 +48,10 @@ const PortRequestPage = () => {
 
     const { error } = await supabase.from('port_requests').insert([
       {
-        type,
         ...form,
         user_id: user.id
+        type,
+        number: type === 'new' ? 'To Be Assigned' : form.number
       }
     ]);
 
