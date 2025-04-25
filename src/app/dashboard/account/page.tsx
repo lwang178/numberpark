@@ -34,7 +34,7 @@ const DashboardOverview = () => {
         return;
       }
 
-      if (!data?.number?.trim()) {
+      if (!data || !data.number || data.number.trim() === '') {
         router.replace('/dashboard/port-request');
       } else {
         setPlan(data);
