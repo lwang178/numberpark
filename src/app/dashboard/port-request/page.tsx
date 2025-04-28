@@ -61,6 +61,18 @@ const PortRequestPage = () => {
       return;
     }
 
+    // After saving to Supabase, send email
+    await fetch('/api/send-port-request-confirmation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: user.primaryEmailAddress?.emailAddress,
+        firstname: form.firstname,
+        plan: form.plan
+      })
+    });
+
+    // ✅ Then go to Stripe checkout
     const res = await fetch('/api/create-checkout-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
