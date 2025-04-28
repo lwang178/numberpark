@@ -42,3 +42,28 @@ const htmlContent = `
   </body>
 </html>
 `;
+
+export async function POST(req: Request) {
+  const { email } = await req.json();
+
+  if (!email) {
+    return NextResponse.json({ error: 'Missing email' }, { status: 400 });
+  }
+
+  try {
+    const data = await resend.emails.send({
+      from: 'Telco Club <support@telcoclub.org>',
+      to: [email],
+      subject: '✅ Telco Club套餐申请已收到',
+      html: htmlContent
+    });
+
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error('Failed to send confirmation email:', error);
+    return NextResponse.json(
+      { error: 'Failed to send email' },
+      { status: 500 }
+    );
+  }
+}
