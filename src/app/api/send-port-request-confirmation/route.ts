@@ -21,15 +21,15 @@ const htmlContent = `
       <tr>
         <td style="padding: 20px 0;">
           <p style="font-size: 15px; color: #374151; line-height: 1.6;">
-            我们已成功接收到您的信息，我们的客服人员将在24小时内审核您的申请。
+            我们已成功接收到您的申请，我们的工作人员将在24小时内审核您的申请。
             <br /><br />
             审核完成后，我们将通过邮件或短信通知您进一步的步骤。
             <br /><br />
             如有任何疑问，欢迎随时联系我们：
           </p>
           <ul style="font-size: 15px; color: #374151; line-height: 1.6; margin-left: 20px; padding-left: 0;">
-            <li>📧 邮箱: support@telcoclub.org</li>
-            <li>📲 微信客服: Telco_Club</li>
+            <li> 邮箱: support@telcoclub.org</li>
+            <li> 微信客服: Telco_Club</li>
           </ul>
         </td>
       </tr>
