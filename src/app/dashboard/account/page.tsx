@@ -26,7 +26,10 @@ const DashboardOverview = () => {
         )
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
-        .limit(1);
+        .limit(1)
+        .maybeSingle();
+
+      console.log('Fetched plan:', data, 'Error', error);
 
       if (error) {
         console.error('Error fetching port request:', error);
