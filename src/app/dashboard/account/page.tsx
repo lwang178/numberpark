@@ -22,7 +22,7 @@ const DashboardOverview = () => {
       const { data, error } = await supabase
         .from('port_requests')
         .select(
-          'number, plan, plan_status, plan_price, plan_next_bill, sim_info, plan_port_status'
+          'number, plan, plan_status, plan_price, plan_next_bill, sim_info, plan_port_status, simtype'
         )
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
@@ -61,14 +61,17 @@ const DashboardOverview = () => {
           <p className='font-semibold'>{plan?.plan || '—'}</p>
           <p>状态 / Status:</p>
           <p className='font-semibold text-green-600'>
-            {plan?.plan_status || '—'}
+            {plan?.plan_status || 'Pending'}
           </p>
           <p>月费 / Monthly Price:</p>
           <p>${plan?.plan_price ?? '—'}</p>
+          {/*
           <p>下次扣费 / Next Bill:</p>
           <p>{plan?.plan_next_bill || '—'}</p>
+         */}
+
           <p>SIM 信息 / SIM Info:</p>
-          <p>{plan?.sim_info || '—'}</p>
+          <p>{plan?.simtype || '—'}</p>
         </div>
       </section>
 
@@ -83,12 +86,10 @@ const DashboardOverview = () => {
           <p className='font-semibold text-yellow-600'>
             {plan?.plan_port_status || '等待运营商处理 / Waiting for carrier'}
           </p>
-          <p>最后更新 / Last Update:</p>
-          <p>2025年4月21日</p>
         </div>
       </section>
 
-      <section className='rounded-2xl border border-gray-200 bg-white p-6 shadow-md'>
+      {/*}   <section className='rounded-2xl border border-gray-200 bg-white p-6 shadow-md'>
         <h2 className='mb-4 text-xl font-bold text-gray-800'>
           💳 账单与付款 / Billing & Payment
         </h2>
@@ -102,7 +103,10 @@ const DashboardOverview = () => {
           📄 下载发票 / Download Invoice
         </button>
       </section>
+      
+      */}
 
+      {/*
       <section className='rounded-2xl border border-gray-200 bg-white p-6 shadow-md'>
         <h2 className='mb-4 text-xl font-bold text-gray-800'>
           🛠 操作中心 / Action Center
@@ -123,6 +127,8 @@ const DashboardOverview = () => {
           ))}
         </div>
       </section>
+      
+*/}
 
       <section className='rounded-2xl border border-gray-200 bg-white p-6 shadow-md'>
         <h2 className='mb-4 text-xl font-bold text-gray-800'>
