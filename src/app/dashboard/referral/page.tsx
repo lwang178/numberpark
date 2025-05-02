@@ -9,14 +9,14 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-const maskNumber = (number) => {
+const maskNumber = (number: string): string => {
   if (!number || number.length !== 10) return number;
   return `${number.slice(0, 3)}****${number.slice(-3)}`;
 };
 
 const ReferralTrackerPage = () => {
   const { user } = useUser();
-  const [referrals, setReferrals] = useState([]);
+  const [referrals, setReferrals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

@@ -402,7 +402,7 @@ const PortRequestPage = () => {
               htmlFor='referrerPhone'
               className='block text-sm font-medium text-gray-700'
             >
-              推荐人手机号（如有）/ Referrer's Phone Number (Optional)
+              推荐人手机号（如有）/ Referrer Phone Number (Optional)
             </label>
             <input
               id='referrerPhone'
