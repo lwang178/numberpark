@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 import { useUser } from '@clerk/nextjs';
@@ -31,6 +31,34 @@ const PortRequestPage = () => {
     esimimei: '',
     referrerPhone: ''
   });
+
+  // 🔍 Check if user already has a number
+  useEffect(() => {
+    const checkIfUserHasNumber = async () => {
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('port_requests')
+        .select('number')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (error) {
+        console.error('Error checking for existing number:', error);
+        return;
+      }
+
+      const latest = data?.[0];
+      console.log('Latest port request:', latest);
+
+      if (latest?.number && latest.number.trim() !== '') {
+        router.push('/dashboard/account');
+      }
+    };
+
+    checkIfUserHasNumber();
+  }, [user, router]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
