@@ -62,6 +62,23 @@ const DashboardOverview = () => {
     fetchPlan();
   }, [router, user]);
 
+  const goToBillingPortal = async () => {
+    try {
+      const res = await fetch('/api/create-billing-portal-session', {
+        method: 'POST'
+      });
+      const { url } = await res.json();
+      if (url) {
+        window.location.href = url;
+      } else {
+        alert('Failed to open billing portal');
+      }
+    } catch (err) {
+      console.error('Billing portal error:', err);
+      alert('Something went wrong');
+    }
+  };
+
   return (
     <div className='mx-auto min-h-screen max-w-4xl space-y-10 bg-gradient-to-b from-gray-50 to-gray-100 p-8 font-mono'>
       <h1 className='border-b pb-4 text-4xl font-extrabold text-gray-900'>
@@ -105,7 +122,8 @@ const DashboardOverview = () => {
         </div>
       </section>
 
-      {/*}   <section className='rounded-2xl border border-gray-200 bg-white p-6 shadow-md'>
+      {/*
+      <section className='rounded-2xl border border-gray-200 bg-white p-6 shadow-md'>
         <h2 className='mb-4 text-xl font-bold text-gray-800'>
           💳 账单与付款 / Billing & Payment
         </h2>
@@ -120,7 +138,7 @@ const DashboardOverview = () => {
         </button>
       </section>
       
-      */}
+   */}
 
       {/*
       <section className='rounded-2xl border border-gray-200 bg-white p-6 shadow-md'>
@@ -143,8 +161,29 @@ const DashboardOverview = () => {
           ))}
         </div>
       </section>
-      
+
+
 */}
+
+      <section className='rounded-2xl border border-gray-200 bg-white p-6 shadow-md'>
+        <h2 className='mb-4 text-xl font-bold text-gray-800'>
+          💳 账单与付款 / Billing & Payment
+        </h2>
+        <div className='divide-y'>
+          {[
+            '修改支付方式 / Update Payment Method',
+            '查看账单 / Check Invoices'
+          ].map((action, i) => (
+            <button
+              key={i}
+              onClick={goToBillingPortal}
+              className='block w-full cursor-pointer px-2 py-3 text-left text-gray-800 transition hover:bg-gray-100 active:bg-gray-200'
+            >
+              {action}
+            </button>
+          ))}
+        </div>
+      </section>
 
       <section className='rounded-2xl border border-gray-200 bg-white p-6 shadow-md'>
         <h2 className='mb-4 text-xl font-bold text-gray-800'>

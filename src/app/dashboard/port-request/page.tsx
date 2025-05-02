@@ -420,7 +420,7 @@ const PortRequestPage = () => {
 
           <button
             type='submit'
-            className='mt-4 rounded-lg bg-black px-6 py-2 text-white transition hover:bg-gray-800'
+            className='mt-4 cursor-pointer rounded-lg bg-black px-6 py-2 text-white transition hover:bg-gray-800'
           >
             ✅ 提交信息 / Submit Info
           </button>
