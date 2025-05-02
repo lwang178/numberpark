@@ -19,7 +19,7 @@ const DashboardOverview = () => {
     const fetchPlan = async () => {
       if (!user) return;
 
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('port_requests')
         .select(
           'number, plan, plan_status, plan_price, plan_next_bill, sim_info, plan_port_status, simtype'
@@ -28,6 +28,22 @@ const DashboardOverview = () => {
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();
+
+      // If not found by user_id, try by email
+      if (!data) {
+        const email = user.primaryEmailAddress?.emailAddress.toLowerCase();
+        const fallback = await supabase
+          .from('port_requests')
+          .select(
+            'number, plan, plan_status, plan_price, plan_next_bill, sim_info, plan_port_status, simtype'
+          )
+          .eq('email', email)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        data = fallback.data;
+        error = fallback.error;
+      }
 
       console.log('Fetched plan:', data, 'Error', error);
 

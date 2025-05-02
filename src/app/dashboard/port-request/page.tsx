@@ -28,14 +28,21 @@ const PortRequestPage = () => {
     city: '',
     state: '',
     zip: '',
-    esimimei: ''
+    esimimei: '',
+    referrerPhone: ''
   });
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === 'referrerPhone') {
+      const digitsOnly = value.replace(/\D/g, '').slice(0, 10);
+      setForm((prev) => ({ ...prev, [name]: digitsOnly }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,10 +53,18 @@ const PortRequestPage = () => {
       return;
     }
 
+    if (form.referrerPhone && !/^\d{10}$/.test(form.referrerPhone)) {
+      alert(
+        '推荐人手机号必须是10位数字 / Referrer phone must be exactly 10 digits'
+      );
+      return;
+    }
+
     const { error } = await supabase.from('port_requests').insert([
       {
         ...form,
         user_id: user.id,
+        email: user.primaryEmailAddress?.emailAddress, // ✅ add this line
         type,
         number: type === 'new' ? 'To Be Assigned' : form.number
       }
@@ -61,7 +76,6 @@ const PortRequestPage = () => {
       return;
     }
 
-    // After saving to Supabase, send email
     await fetch('/api/send-port-request-confirmation', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -72,11 +86,10 @@ const PortRequestPage = () => {
       })
     });
 
-    // ✅ Then go to Stripe checkout
     const res = await fetch('/api/create-checkout-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ priceId: 'price_1RH9pPInEkfFxa3EXD2y65C2' }) // replace with your actual Stripe Price ID
+      body: JSON.stringify({ priceId: 'price_1RH9pPInEkfFxa3EXD2y65C2' })
     });
 
     if (!res.ok) {
@@ -108,7 +121,7 @@ const PortRequestPage = () => {
         <form onSubmit={handleSubmit} className='space-y-5'>
           <div>
             <label
-              htmlFor='plan_carrier'
+              htmlFor='plan'
               className='block text-sm font-medium text-gray-700'
             >
               选择俱乐部套餐 / Choose Plan
@@ -383,6 +396,27 @@ const PortRequestPage = () => {
               />
             </div>
           )}
+
+          <div>
+            <label
+              htmlFor='referrerPhone'
+              className='block text-sm font-medium text-gray-700'
+            >
+              推荐人手机号（如有）/ Referrer's Phone Number (Optional)
+            </label>
+            <input
+              id='referrerPhone'
+              name='referrerPhone'
+              type='tel'
+              inputMode='numeric'
+              pattern='[0-9]*'
+              placeholder='6465551234'
+              value={form.referrerPhone}
+              onChange={handleChange}
+              className='mt-1 w-full rounded-md border border-gray-300 p-2'
+              maxLength={10}
+            />
+          </div>
 
           <button
             type='submit'

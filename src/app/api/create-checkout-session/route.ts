@@ -64,14 +64,18 @@ export async function POST(req: Request) {
       customerId = customer.id;
 
       await supabase
-        .from('customers')
-        .insert({ clerk_id: userId, stripe_customer_id: customer.id });
+        .from('port_requests')
+        .update({ stripe_customer_id: customer.id })
+        .eq('user_id', userId);
     }
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: 'subscription',
       line_items: [{ price: priceId, quantity: 1 }],
+
+      allow_promotion_codes: true,
+
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/account?success=1`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/account?cancelled=1`
     });

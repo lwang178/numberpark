@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { SidebarTrigger } from '../ui/sidebar';
 import { Separator } from '../ui/separator';
 import { Breadcrumbs } from '../breadcrumbs';
@@ -18,10 +19,17 @@ export default function Header() {
 
       <div className='flex items-center gap-2 px-4'>
         <div className='hidden md:flex'>{/*  <SearchInput />  */}</div>
+
+        {/* 🆕 Referral Button */}
+        <Link
+          href='/dashboard/referral'
+          className='rounded-md bg-black px-4 py-2 text-sm text-white hover:bg-gray-800'
+        >
+          推荐奖励 / Referrals
+        </Link>
+
         <UserNav />
-        {/*
-        <ModeToggle />
-       */}
+        {/* <ModeToggle /> */}
         {/* <ThemeSelector /> */}
       </div>
     </header>
