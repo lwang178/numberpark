@@ -32,7 +32,6 @@ const PortRequestPage = () => {
     referrerPhone: ''
   });
 
-  // 🔍 Check if user already has a number
   useEffect(() => {
     const checkIfUserHasNumber = async () => {
       if (!user) return;
@@ -50,8 +49,6 @@ const PortRequestPage = () => {
       }
 
       const latest = data?.[0];
-      console.log('Latest port request:', latest);
-
       if (latest?.number && latest.number.trim() !== '') {
         router.push('/dashboard/account');
       }
@@ -64,7 +61,6 @@ const PortRequestPage = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-
     if (name === 'referrerPhone') {
       const digitsOnly = value.replace(/\D/g, '').slice(0, 10);
       setForm((prev) => ({ ...prev, [name]: digitsOnly }));
@@ -92,7 +88,7 @@ const PortRequestPage = () => {
       {
         ...form,
         user_id: user.id,
-        email: user.primaryEmailAddress?.emailAddress, // ✅ add this line
+        email: user.primaryEmailAddress?.emailAddress,
         type,
         number: type === 'new' ? 'To Be Assigned' : form.number
       }
@@ -163,8 +159,10 @@ const PortRequestPage = () => {
               required
             >
               <option value=''>请选择</option>
-              <option value='Verizon'>Verizon</option>
+
               <option value='T-Mobile'>T-Mobile</option>
+              <option value='Verizon'>Verizon (暂时已满)</option>
+              <option value='AT&T'>AT&T (暂时已满)</option>
             </select>
           </div>
 
@@ -193,258 +191,161 @@ const PortRequestPage = () => {
             </label>
           </div>
 
-          <div>
-            <label
-              htmlFor='firstname'
-              className='block text-sm font-medium text-gray-700'
-            >
-              名 / First Name
-            </label>
-            <input
-              id='firstname'
-              name='firstname'
-              value={form.firstname}
-              onChange={handleChange}
-              className='mt-1 w-full rounded-md border border-gray-300 p-2'
-              required
-            />
-          </div>
-          <div>
-            <label
-              htmlFor='lastname'
-              className='block text-sm font-medium text-gray-700'
-            >
-              姓 / Last Name
-            </label>
-            <input
-              id='lastname'
-              name='lastname'
-              value={form.lastname}
-              onChange={handleChange}
-              className='mt-1 w-full rounded-md border border-gray-300 p-2'
-              required
-            />
-          </div>
+          <input
+            required
+            id='firstname'
+            name='firstname'
+            value={form.firstname}
+            onChange={handleChange}
+            placeholder='名 / First Name'
+            className='w-full rounded-md border border-gray-300 p-2'
+          />
+          <input
+            required
+            id='lastname'
+            name='lastname'
+            value={form.lastname}
+            onChange={handleChange}
+            placeholder='姓 / Last Name'
+            className='w-full rounded-md border border-gray-300 p-2'
+          />
 
           {type === 'port' && (
             <>
-              <div>
-                <label
-                  htmlFor='number'
-                  className='block text-sm font-medium text-gray-700'
-                >
-                  要转入的号码 / Phone Number
-                </label>
-                <input
-                  id='number'
-                  name='number'
-                  value={form.number}
-                  onChange={handleChange}
-                  className='mt-1 w-full rounded-md border border-gray-300 p-2'
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor='carrier'
-                  className='block text-sm font-medium text-gray-700'
-                >
-                  原运营商 / Current Carrier
-                </label>
-                <select
-                  id='carrier'
-                  name='carrier'
-                  value={form.carrier}
-                  onChange={handleChange}
-                  className='mt-1 w-full rounded-md border border-gray-300 p-2'
-                  required
-                >
-                  <option value=''>请选择</option>
-                  <option value='Verizon'>Verizon</option>
-                  <option value='AT&T'>AT&T</option>
-                  <option value='T-Mobile'>T-Mobile</option>
-                  <option value='Other'>Other</option>
-                </select>
-              </div>
-              <div>
-                <label
-                  htmlFor='accountnumber'
-                  className='block text-sm font-medium text-gray-700'
-                >
-                  转网账号 / Account Number
-                </label>
-                <input
-                  id='accountnumber'
-                  name='accountnumber'
-                  value={form.accountnumber}
-                  onChange={handleChange}
-                  className='mt-1 w-full rounded-md border border-gray-300 p-2'
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor='transferpin'
-                  className='block text-sm font-medium text-gray-700'
-                >
-                  转网 PIN / Transfer PIN
-                </label>
-                <input
-                  id='transferpin'
-                  name='transferpin'
-                  value={form.transferpin}
-                  onChange={handleChange}
-                  className='mt-1 w-full rounded-md border border-gray-300 p-2'
-                  required
-                />
-              </div>
+              <input
+                required
+                id='number'
+                name='number'
+                value={form.number}
+                onChange={handleChange}
+                placeholder='要转入的号码 / Phone Number'
+                className='w-full rounded-md border border-gray-300 p-2'
+              />
+              <select
+                required
+                id='carrier'
+                name='carrier'
+                value={form.carrier}
+                onChange={handleChange}
+                className='w-full rounded-md border border-gray-300 p-2'
+              >
+                <option value=''>原运营商 / Current Carrier</option>
+                <option value='Verizon'>Verizon</option>
+                <option value='AT&T'>AT&T</option>
+                <option value='T-Mobile'>T-Mobile</option>
+                <option value='Other'>Other</option>
+              </select>
+              <input
+                required
+                id='accountnumber'
+                name='accountnumber'
+                value={form.accountnumber}
+                onChange={handleChange}
+                placeholder='转网账号 / Account Number'
+                className='w-full rounded-md border border-gray-300 p-2'
+              />
+              <input
+                required
+                id='transferpin'
+                name='transferpin'
+                value={form.transferpin}
+                onChange={handleChange}
+                placeholder='转网 PIN / Transfer PIN'
+                className='w-full rounded-md border border-gray-300 p-2'
+              />
             </>
           )}
 
-          <div>
-            <label
-              htmlFor='simtype'
-              className='block text-sm font-medium text-gray-700'
-            >
-              SIM 类型 / SIM Type
-            </label>
-            <select
-              id='simtype'
-              name='simtype'
-              value={form.simtype}
-              onChange={handleChange}
-              className='mt-1 w-full rounded-md border border-gray-300 p-2'
-              required
-            >
-              <option value=''>请选择</option>
-              <option value='eSIM'>eSIM</option>
-              <option value='Physical'>实体 SIM</option>
-            </select>
-          </div>
+          <select
+            required
+            id='simtype'
+            name='simtype'
+            value={form.simtype}
+            onChange={handleChange}
+            className='w-full rounded-md border border-gray-300 p-2'
+          >
+            <option value=''>SIM 类型 / SIM Type</option>
+            <option value='eSIM'>eSIM</option>
+            <option value='Physical'>实体 SIM</option>
+          </select>
 
           {form.simtype === 'Physical' && (
             <>
-              <div>
-                <label
-                  htmlFor='addressline1'
-                  className='block text-sm font-medium text-gray-700'
-                >
-                  地址行1 / Address Line 1
-                </label>
-                <input
-                  id='addressline1'
-                  name='addressline1'
-                  value={form.addressline1}
-                  onChange={handleChange}
-                  className='mt-1 w-full rounded-md border border-gray-300 p-2'
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor='addressline2'
-                  className='block text-sm font-medium text-gray-700'
-                >
-                  地址行2 / Address Line 2
-                </label>
-                <input
-                  id='addressline2'
-                  name='addressline2'
-                  value={form.addressline2}
-                  onChange={handleChange}
-                  className='mt-1 w-full rounded-md border border-gray-300 p-2'
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor='city'
-                  className='block text-sm font-medium text-gray-700'
-                >
-                  城市 / City
-                </label>
-                <input
-                  id='city'
-                  name='city'
-                  value={form.city}
-                  onChange={handleChange}
-                  className='mt-1 w-full rounded-md border border-gray-300 p-2'
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor='state'
-                  className='block text-sm font-medium text-gray-700'
-                >
-                  州 / State
-                </label>
-                <input
-                  id='state'
-                  name='state'
-                  value={form.state}
-                  onChange={handleChange}
-                  className='mt-1 w-full rounded-md border border-gray-300 p-2'
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor='zip'
-                  className='block text-sm font-medium text-gray-700'
-                >
-                  邮编 / ZIP Code
-                </label>
-                <input
-                  id='zip'
-                  name='zip'
-                  value={form.zip}
-                  onChange={handleChange}
-                  className='mt-1 w-full rounded-md border border-gray-300 p-2'
-                  required
-                />
-              </div>
+              <input
+                required
+                id='addressline1'
+                name='addressline1'
+                value={form.addressline1}
+                onChange={handleChange}
+                placeholder='地址行1 / Address Line 1'
+                className='w-full rounded-md border border-gray-300 p-2'
+              />
+              <input
+                id='addressline2'
+                name='addressline2'
+                value={form.addressline2}
+                onChange={handleChange}
+                placeholder='地址行2 / Address Line 2'
+                className='w-full rounded-md border border-gray-300 p-2'
+              />
+              <input
+                required
+                id='city'
+                name='city'
+                value={form.city}
+                onChange={handleChange}
+                placeholder='城市 / City'
+                className='w-full rounded-md border border-gray-300 p-2'
+              />
+              <input
+                required
+                id='state'
+                name='state'
+                value={form.state}
+                onChange={handleChange}
+                placeholder='州 / State'
+                className='w-full rounded-md border border-gray-300 p-2'
+              />
             </>
           )}
 
           {form.simtype === 'eSIM' && (
-            <div>
-              <label
-                htmlFor='esimimei'
-                className='block text-sm font-medium text-gray-700'
-              >
-                eSIM IMEI
-              </label>
-              <input
-                id='esimimei'
-                name='esimimei'
-                value={form.esimimei}
-                onChange={handleChange}
-                className='mt-1 w-full rounded-md border border-gray-300 p-2'
-                required
-              />
-            </div>
+            <input
+              required
+              id='esimimei'
+              name='esimimei'
+              value={form.esimimei}
+              onChange={handleChange}
+              placeholder='eSIM IMEI'
+              className='w-full rounded-md border border-gray-300 p-2'
+            />
           )}
 
-          <div>
-            <label
-              htmlFor='referrerPhone'
-              className='block text-sm font-medium text-gray-700'
-            >
-              推荐人手机号（如有）/ Referrer Phone Number (Optional)
-            </label>
+          {/* ZIP shown for both types */}
+          {form.simtype && (
             <input
-              id='referrerPhone'
-              name='referrerPhone'
-              type='tel'
-              inputMode='numeric'
-              pattern='[0-9]*'
-              placeholder='6465551234'
-              value={form.referrerPhone}
+              required
+              id='zip'
+              name='zip'
+              value={form.zip}
               onChange={handleChange}
-              className='mt-1 w-full rounded-md border border-gray-300 p-2'
-              maxLength={10}
+              placeholder='邮编 / ZIP Code'
+              className='w-full rounded-md border border-gray-300 p-2'
             />
-          </div>
+          )}
+
+          <input
+            id='referrerPhone'
+            name='referrerPhone'
+            type='tel'
+            inputMode='numeric'
+            pattern='[0-9]*'
+            placeholder='推荐人手机号（如有） / Referrer Phone (Optional)'
+            value={form.referrerPhone}
+            onChange={handleChange}
+            className='w-full rounded-md border border-gray-300 p-2'
+            maxLength={10}
+          />
 
           <button
             type='submit'
