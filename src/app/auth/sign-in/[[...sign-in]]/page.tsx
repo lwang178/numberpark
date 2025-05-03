@@ -1,3 +1,6 @@
+{
+  /*
+
 import { Metadata } from 'next';
 import SignInViewPage from '@/features/auth/components/sign-in-view';
 
@@ -25,4 +28,8 @@ export default async function Page() {
     // Error fetching GitHub stars, using default value
   }
   return <SignInViewPage stars={stars} />;
+}
+
+
+*/
 }
