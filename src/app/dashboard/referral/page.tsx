@@ -25,20 +25,40 @@ const ReferralTrackerPage = () => {
     const fetchReferrals = async () => {
       setLoading(true);
 
-      const { data: myRequests, error: myError } = await supabase
+      let myNumber: string | null = null;
+
+      // Try by user_id first
+      let { data: myRequests, error: myError } = await supabase
         .from('port_requests')
         .select('number')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(1);
 
+      // If not found, try by email
       if (myError || !myRequests || myRequests.length === 0) {
-        console.error('Could not find your number:', myError);
-        setLoading(false);
-        return;
-      }
+        console.warn('Not found by user_id, trying by email...');
 
-      const myNumber = myRequests[0].number;
+        const { data: emailRequests, error: emailError } = await supabase
+          .from('port_requests')
+          .select('number')
+          .eq('email', user.primaryEmailAddress?.emailAddress) // assuming this is the right way to get email
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        if (emailError || !myRequests || myRequests.length === 0) {
+          console.error(
+            'Could not find your number by user_id or email:',
+            myError || emailError
+          );
+          setLoading(false);
+          return;
+        }
+
+        myNumber = emailRequests[0].number;
+      } else {
+        myNumber = myRequests[0].number;
+      }
 
       const { data, error } = await supabase
         .from('port_requests')
