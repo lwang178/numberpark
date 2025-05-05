@@ -113,7 +113,7 @@ const PortRequestPage = () => {
     const res = await fetch('/api/create-checkout-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ priceId: 'price_1RH9pPInEkfFxa3EXD2y65C2' })
+      body: JSON.stringify({ priceId: 'price_1MPHx6InEkfFxa3E8JNeVXdm' })
     });
 
     if (!res.ok) {
