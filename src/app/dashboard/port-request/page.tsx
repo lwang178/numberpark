@@ -340,7 +340,7 @@ const PortRequestPage = () => {
             type='tel'
             inputMode='numeric'
             pattern='[0-9]*'
-            placeholder='推荐人手机号（如有） / Referrer Phone (Optional)'
+            placeholder='推荐人手机号 或 推荐码 / Referrer Phone or Code (Optional)'
             value={form.referrerPhone}
             onChange={handleChange}
             className='w-full rounded-md border border-gray-300 p-2'
