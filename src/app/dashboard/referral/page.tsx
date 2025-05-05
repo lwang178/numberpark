@@ -46,7 +46,10 @@ const ReferralTrackerPage = () => {
         const { data: emailRequests, error: emailError } = await supabase
           .from('port_requests')
           .select('number')
-          .eq('email', user.primaryEmailAddress?.emailAddress) // assuming this is the right way to get email
+          .eq(
+            'email',
+            user.primaryEmailAddress?.emailAddress.trim().toLowerCase()
+          )
           .order('created_at', { ascending: false })
           .limit(1);
 
