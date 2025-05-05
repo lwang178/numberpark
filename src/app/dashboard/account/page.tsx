@@ -31,6 +31,7 @@ const DashboardOverview = () => {
 
       // If not found by user_id, try by email
       if (!data) {
+        console.warn('Not found by user_id, trying by email...');
         const email = user.primaryEmailAddress?.emailAddress.toLowerCase();
         const fallback = await supabase
           .from('port_requests')
