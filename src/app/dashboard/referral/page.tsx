@@ -48,7 +48,7 @@ const ReferralTrackerPage = () => {
           .select('number')
           .eq(
             'email',
-            user.primaryEmailAddress?.emailAddress.trim().toLowerCase()
+            (user.primaryEmailAddress?.emailAddress || '').trim().toLowerCase()
           )
           .order('created_at', { ascending: false })
           .limit(1);
@@ -56,7 +56,7 @@ const ReferralTrackerPage = () => {
         if (emailError || !myRequests || myRequests.length === 0) {
           console.error(
             'Could not find your number by user_id or email:',
-            myError || emailError
+            emailError
           );
           setLoading(false);
           return;
