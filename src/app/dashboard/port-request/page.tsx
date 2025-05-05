@@ -13,6 +13,7 @@ const supabase = createClient(
 const PortRequestPage = () => {
   const router = useRouter();
   const { user } = useUser();
+  const [submitting, setSubmitting] = useState(false);
   const [type, setType] = useState('port');
   const [form, setForm] = useState({
     plan: '',
@@ -34,7 +35,7 @@ const PortRequestPage = () => {
 
   useEffect(() => {
     const checkIfUserHasNumber = async () => {
-      if (!user) return;
+      if (!user || !user.id) return;
 
       const { data, error } = await supabase
         .from('port_requests')
@@ -72,66 +73,75 @@ const PortRequestPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!user) {
-      alert('请先登录 / Please log in first');
-      return;
-    }
+    if (submitting) return;
+    setSubmitting(true);
 
-    if (form.referrerPhone && !/^\d{10}$/.test(form.referrerPhone)) {
-      alert(
-        '推荐人手机号必须是10位数字 / Referrer phone must be exactly 10 digits'
-      );
-      return;
-    }
-
-    const { error } = await supabase.from('port_requests').insert([
-      {
-        ...form,
-        user_id: user.id,
-        email: user.primaryEmailAddress?.emailAddress,
-        type,
-        number: type === 'new' ? 'To Be Assigned' : form.number
+    try {
+      if (!user) {
+        alert('请先登录 / Please log in first');
+        return;
       }
-    ]);
 
-    if (error) {
-      console.error('Submission error:', error);
-      alert('提交失败，请稍后再试');
-      return;
-    }
+      if (form.referrerPhone && !/^\d{10}$/.test(form.referrerPhone)) {
+        alert(
+          '推荐人手机号必须是10位数字 / Referrer phone must be exactly 10 digits'
+        );
+        return;
+      }
 
-    await fetch('/api/send-port-request-confirmation', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: user.primaryEmailAddress?.emailAddress,
-        firstname: form.firstname,
-        plan: form.plan
-      })
-    });
+      const { error } = await supabase.from('port_requests').insert([
+        {
+          ...form,
+          user_id: user.id,
+          email: user.primaryEmailAddress?.emailAddress ?? '',
+          type,
+          number: type === 'new' ? 'To Be Assigned' : form.number
+        }
+      ]);
 
-    const res = await fetch('/api/create-checkout-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ priceId: 'price_1MPHx6InEkfFxa3E8JNeVXdm' })
-    });
+      if (error) {
+        console.error('Submission error:', error);
+        alert('提交失败，请稍后再试');
+        return;
+      }
 
-    if (!res.ok) {
-      const text = await res.text();
-      console.error(
-        'Stripe checkout session creation failed:',
-        res.status,
-        text
-      );
-      alert('创建结账会话失败，请联系支持 / Failed to create checkout session');
-      return;
-    }
+      await fetch('/api/send-port-request-confirmation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: user.primaryEmailAddress?.emailAddress,
+          firstname: form.firstname,
+          plan: form.plan
+        })
+      });
 
-    const { url } = await res.json();
-    if (url) {
-      window.location.href = url;
-    } else {
-      alert('跳转结账失败 / Failed to redirect to checkout');
+      const res = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId: 'price_1MPHx6InEkfFxa3E8JNeVXdm' })
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        console.error(
+          'Stripe checkout session creation failed:',
+          res.status,
+          text
+        );
+        alert(
+          '创建结账会话失败，请联系支持 / Failed to create checkout session'
+        );
+        return;
+      }
+
+      const { url } = await res.json();
+      if (url) {
+        window.location.href = url;
+      } else {
+        alert('跳转结账失败 / Failed to redirect to checkout');
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -159,10 +169,13 @@ const PortRequestPage = () => {
               required
             >
               <option value=''>请选择</option>
-
               <option value='T-Mobile'>T-Mobile</option>
-              <option value='Verizon'>Verizon (暂时已满)</option>
-              <option value='AT&T'>AT&T (暂时已满)</option>
+              <option value='Verizon' disabled>
+                Verizon（暂时已满）
+              </option>
+              <option value='AT&T' disabled>
+                AT&T（暂时已满）
+              </option>
             </select>
           </div>
 
@@ -321,7 +334,6 @@ const PortRequestPage = () => {
             />
           )}
 
-          {/* ZIP shown for both types */}
           {form.simtype && (
             <input
               required
@@ -349,9 +361,14 @@ const PortRequestPage = () => {
 
           <button
             type='submit'
-            className='mt-4 cursor-pointer rounded-lg bg-black px-6 py-2 text-white transition hover:bg-gray-800'
+            disabled={submitting}
+            className={`mt-4 w-full rounded-lg px-6 py-2 text-white transition ${
+              submitting
+                ? 'cursor-not-allowed bg-gray-400'
+                : 'bg-black hover:bg-gray-800'
+            }`}
           >
-            ✅ 提交信息 / Submit Info
+            {submitting ? '提交中… / Submitting…' : '✅ 提交信息 / Submit Info'}
           </button>
         </form>
       </div>
