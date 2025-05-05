@@ -43,6 +43,7 @@ const ReferralTrackerPage = () => {
       if (myError || !myRequests || myRequests.length === 0) {
         console.warn('Not found by user_id, trying by email...');
         const email = user.primaryEmailAddress?.emailAddress.toLowerCase();
+
         const { data: emailRequests, error: emailError } = await supabase
           .from('port_requests')
           .select('number')
@@ -50,7 +51,7 @@ const ReferralTrackerPage = () => {
           .order('created_at', { ascending: false })
           .limit(1);
 
-        if (emailError || !myRequests || myRequests.length === 0) {
+        if (emailError || !emailRequests || emailRequests.length === 0) {
           console.error(
             'Could not find your number by user_id or email:',
             emailError
