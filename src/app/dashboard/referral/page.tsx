@@ -22,6 +22,10 @@ const ReferralTrackerPage = () => {
   useEffect(() => {
     if (!user) return;
 
+    console.log('User ID:', user.id);
+    console.log('Primary Email:', user.primaryEmailAddress?.emailAddress);
+    console.log('All Emails:', user.emailAddresses);
+
     const fetchReferrals = async () => {
       setLoading(true);
 
