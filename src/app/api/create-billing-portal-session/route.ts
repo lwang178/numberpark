@@ -1,6 +1,7 @@
 // /app/api/create-billing-portal-session/route.ts
 
 import { auth } from '@clerk/nextjs/server';
+import { clerkClient } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { NextResponse } from 'next/server';
