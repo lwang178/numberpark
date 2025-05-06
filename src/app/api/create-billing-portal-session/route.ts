@@ -33,6 +33,8 @@ export async function POST() {
 
     if (!data) {
       console.warn('Not found by user_id, trying by email...');
+
+      const user = await clerkClient.users.getUser(userId);
       const email = user.primaryEmailAddress?.emailAddress.toLowerCase();
       const fallback = await supabase
         .from('port_requests')
