@@ -23,13 +23,29 @@ export async function POST() {
 
     console.log('🔍 Looking up Stripe customer ID for user:', userId);
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('port_requests')
       .select('stripe_customer_id')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(1)
       .single();
+
+    if (!data) {
+      console.warn('Not found by user_id, trying by email...');
+      const email = user.primaryEmailAddress?.emailAddress.toLowerCase();
+      const fallback = await supabase
+        .from('port_requests')
+        .select('stripe_customer_id')
+        .eq('email', email)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      data = fallback.data;
+      error = fallback.error;
+    }
+
+    console.log('Fetched plan:', data, 'Error', error);
 
     if (error) {
       console.error('❌ Supabase error:', error);
