@@ -115,10 +115,29 @@ const PortRequestPage = () => {
         })
       });
 
+      let priceId = '';
+
+      console.log('📤 Submitting plan:', form.plan);
+
+      switch (form.plan) {
+        case 'Bandwidth':
+          priceId = 'price_1RM6ILInEkfFxa3ERbHgDQs0';
+          break;
+        case 'T-Mobile':
+          priceId = 'price_1MPHx6InEkfFxa3E8JNeVXdm';
+          break;
+        default:
+          alert('请选择一个有效的套餐 / Please choose a valid plan');
+          setSubmitting(false);
+          return;
+      }
+
+      console.log('📦 priceId:', priceId); // You should see this now
+
       const res = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ priceId: 'price_1MPHx6InEkfFxa3E8JNeVXdm' })
+        body: JSON.stringify({ priceId }) // ✅ CORRECTED HERE
       });
 
       if (!res.ok) {
@@ -169,12 +188,13 @@ const PortRequestPage = () => {
               required
             >
               <option value=''>请选择</option>
-              <option value='T-Mobile'>T-Mobile</option>
+              <option value='Bandwidth'>Bandwidth 停机保号套餐</option>
+              <option value='T-Mobile'>T-Mobile 无限流量套餐</option>
               <option value='Verizon' disabled>
-                Verizon（暂时已满）
+                Verizon 无限流量套餐（暂时已满）
               </option>
               <option value='AT&T' disabled>
-                AT&T（暂时已满）
+                AT&T 无限流量套餐（暂时已满）
               </option>
             </select>
           </div>
@@ -269,57 +289,64 @@ const PortRequestPage = () => {
             </>
           )}
 
-          <select
+          <input
             required
-            id='simtype'
-            name='simtype'
-            value={form.simtype}
+            id='addressline1'
+            name='addressline1'
+            value={form.addressline1}
             onChange={handleChange}
+            placeholder='地址行1 / Address Line 1'
             className='w-full rounded-md border border-gray-300 p-2'
-          >
-            <option value=''>SIM 类型 / SIM Type</option>
-            <option value='eSIM'>eSIM</option>
-            <option value='Physical'>实体 SIM</option>
-          </select>
+          />
+          <input
+            id='addressline2'
+            name='addressline2'
+            value={form.addressline2}
+            onChange={handleChange}
+            placeholder='地址行2 / Address Line 2'
+            className='w-full rounded-md border border-gray-300 p-2'
+          />
+          <input
+            required
+            id='city'
+            name='city'
+            value={form.city}
+            onChange={handleChange}
+            placeholder='城市 / City'
+            className='w-full rounded-md border border-gray-300 p-2'
+          />
+          <input
+            required
+            id='state'
+            name='state'
+            value={form.state}
+            onChange={handleChange}
+            placeholder='州 / State'
+            className='w-full rounded-md border border-gray-300 p-2'
+          />
+          <input
+            required
+            id='zip'
+            name='zip'
+            value={form.zip}
+            onChange={handleChange}
+            placeholder='邮编 / ZIP Code'
+            className='w-full rounded-md border border-gray-300 p-2'
+          />
 
-          {form.simtype === 'Physical' && (
-            <>
-              <input
-                required
-                id='addressline1'
-                name='addressline1'
-                value={form.addressline1}
-                onChange={handleChange}
-                placeholder='地址行1 / Address Line 1'
-                className='w-full rounded-md border border-gray-300 p-2'
-              />
-              <input
-                id='addressline2'
-                name='addressline2'
-                value={form.addressline2}
-                onChange={handleChange}
-                placeholder='地址行2 / Address Line 2'
-                className='w-full rounded-md border border-gray-300 p-2'
-              />
-              <input
-                required
-                id='city'
-                name='city'
-                value={form.city}
-                onChange={handleChange}
-                placeholder='城市 / City'
-                className='w-full rounded-md border border-gray-300 p-2'
-              />
-              <input
-                required
-                id='state'
-                name='state'
-                value={form.state}
-                onChange={handleChange}
-                placeholder='州 / State'
-                className='w-full rounded-md border border-gray-300 p-2'
-              />
-            </>
+          {form.plan === 'T-Mobile' && (
+            <select
+              required
+              id='simtype'
+              name='simtype'
+              value={form.simtype}
+              onChange={handleChange}
+              className='w-full rounded-md border border-gray-300 p-2'
+            >
+              <option value=''>SIM 类型 / SIM Type</option>
+              <option value='eSIM'>eSIM</option>
+              <option value='Physical'>实体 SIM</option>
+            </select>
           )}
 
           {form.simtype === 'eSIM' && (
@@ -330,18 +357,6 @@ const PortRequestPage = () => {
               value={form.esimimei}
               onChange={handleChange}
               placeholder='eSIM IMEI'
-              className='w-full rounded-md border border-gray-300 p-2'
-            />
-          )}
-
-          {form.simtype && (
-            <input
-              required
-              id='zip'
-              name='zip'
-              value={form.zip}
-              onChange={handleChange}
-              placeholder='邮编 / ZIP Code'
               className='w-full rounded-md border border-gray-300 p-2'
             />
           )}

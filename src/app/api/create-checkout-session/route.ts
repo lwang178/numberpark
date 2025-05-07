@@ -10,9 +10,14 @@ const supabase = createClient(
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
+const BANDWIDTH_PLAN_ID = 'price_1RM6ILInEkfFxa3ERbHgDQs0'; // subscription
+const BANDWIDTH_SETUP_FEE_ID = 'price_1RM6KsInEkfFxa3EA8axQaDT'; // one-time fee
+const TMOBILE_PLAN_ID = 'price_1MPHx6InEkfFxa3E8JNeVXdm'; // T-Mobile
+const PROMO_CODE_ID = 'promo_1RLS8kInEkfFxa3EbDTseGlI'; // T-Mobile referral promo
+
 export async function POST(req: Request) {
   try {
-    const authSession = auth(); // ✅ renamed to avoid conflict
+    const authSession = auth();
     const userId = authSession?.userId;
     const { priceId } = await req.json();
 
@@ -41,7 +46,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Email not found' }, { status: 400 });
     }
 
-    // Check if customer already exists
+    // Check for existing Stripe customer
     let { data: existing } = await supabase
       .from('customers')
       .select('stripe_customer_id')
@@ -50,7 +55,6 @@ export async function POST(req: Request) {
 
     let customerId = existing?.stripe_customer_id;
 
-    // Create Stripe customer if not found
     if (!customerId) {
       const { data: portData } = await supabase
         .from('port_requests')
@@ -60,8 +64,6 @@ export async function POST(req: Request) {
         .limit(1)
         .single();
 
-      console.log('📦 portData:', portData);
-
       const name = portData ? `${portData.firstname} ${portData.lastname}` : '';
       const description = portData?.number || '';
 
@@ -70,7 +72,6 @@ export async function POST(req: Request) {
         name,
         description
       });
-
       customerId = customer.id;
 
       await supabase
@@ -79,7 +80,7 @@ export async function POST(req: Request) {
         .eq('user_id', userId);
     }
 
-    // Check for referrerPhone
+    // Check referrer phone
     const { data: userPort } = await supabase
       .from('port_requests')
       .select('referrerPhone')
@@ -87,8 +88,6 @@ export async function POST(req: Request) {
       .order('created_at', { ascending: false })
       .limit(1)
       .single();
-
-    console.log('🔍 userPort:', userPort);
 
     let applyPromo = false;
     if (userPort?.referrerPhone) {
@@ -99,26 +98,31 @@ export async function POST(req: Request) {
         .limit(1)
         .single();
 
-      console.log('📞 referrer match:', match);
       applyPromo = !!match;
     }
 
-    const PROMO_CODE_ID = 'promo_1RLS8kInEkfFxa3EbDTseGlI'; // Replace with your actual promo_code.id
+    // Build line items
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] =
+      priceId === BANDWIDTH_PLAN_ID
+        ? [
+            { price: BANDWIDTH_PLAN_ID, quantity: 1 },
+            { price: BANDWIDTH_SETUP_FEE_ID, quantity: 1 }
+          ]
+        : [{ price: priceId, quantity: 1 }];
 
     const sessionPayload: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       mode: 'subscription',
-      line_items: [{ price: priceId, quantity: 1 }],
+      line_items: lineItems,
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/account?success=1`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/account?cancelled=1`
     };
 
-    if (applyPromo) {
+    if (applyPromo && priceId === TMOBILE_PLAN_ID) {
       sessionPayload.discounts = [{ promotion_code: PROMO_CODE_ID }];
     }
 
     const session = await stripe.checkout.sessions.create(sessionPayload);
-
     return NextResponse.json({ url: session.url });
   } catch (err: any) {
     console.error('❌ Stripe Checkout Error:', err.message, err);
