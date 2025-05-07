@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useUser } from '@clerk/nextjs';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -9,10 +10,14 @@ const supabase = createClient(
 );
 
 const AdminPortRequestsPanel = () => {
+  const { user, isLoaded } = useUser();
   const [entries, setEntries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const isAdmin = user?.publicMetadata?.role === 'admin';
 
   useEffect(() => {
+    if (!isAdmin) return;
+
     const fetchEntries = async () => {
       const { data, error } = await supabase
         .from('port_requests')
@@ -29,7 +34,7 @@ const AdminPortRequestsPanel = () => {
     };
 
     fetchEntries();
-  }, []);
+  }, [isAdmin]);
 
   const handleUpdate = async (id: string, field: string, value: string) => {
     const { error } = await supabase
@@ -48,7 +53,10 @@ const AdminPortRequestsPanel = () => {
     }
   };
 
-  if (loading) return <p className='p-4'>加载中 / Loading...</p>;
+  if (!isLoaded) return <p className='p-4'>加载中 / Loading user...</p>;
+  if (!isAdmin)
+    return <p className='p-4 text-red-500'>❌ 无权限 / Unauthorized</p>;
+  if (loading) return <p className='p-4'>加载中 / Loading data...</p>;
 
   return (
     <div className='mx-auto max-w-6xl p-6 font-mono'>
