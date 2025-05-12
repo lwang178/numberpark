@@ -19,6 +19,7 @@ const DashboardOverview = () => {
     const fetchPlan = async () => {
       if (!user) return;
 
+      console.log('🧪 Clerk user ID:', user?.id);
       let { data, error } = await supabase
         .from('port_requests')
         .select(

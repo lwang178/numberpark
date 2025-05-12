@@ -37,6 +37,8 @@ const AdminPortRequestsPanel = () => {
   }, [isAdmin]);
 
   const handleUpdate = async (id: string, field: string, value: string) => {
+    const original = entries.find((e) => e.id === id);
+
     const { error } = await supabase
       .from('port_requests')
       .update({ [field]: value })
@@ -50,6 +52,19 @@ const AdminPortRequestsPanel = () => {
           entry.id === id ? { ...entry, [field]: value } : entry
         )
       );
+
+      // ✅ Trigger activation email only when status changed to Active
+      if (
+        field === 'plan_status' &&
+        value === 'Active' &&
+        original?.plan_status !== 'Active'
+      ) {
+        await fetch('/api/send-activation-email', {
+          method: 'POST',
+          body: JSON.stringify({ userId: original.user_id }),
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
     }
   };
 
@@ -68,13 +83,12 @@ const AdminPortRequestsPanel = () => {
           <thead>
             <tr className='bg-gray-100 text-left'>
               {[
-                '用户 ID',
+                '邮箱',
                 '号码',
                 '运营商',
                 '状态',
                 '月费',
-                '下次扣费',
-                'SIM 信息',
+                '奖励',
                 '转网状态'
               ].map((header, idx) => (
                 <th key={idx} className='border-b p-2'>
@@ -86,25 +100,33 @@ const AdminPortRequestsPanel = () => {
           <tbody>
             {entries.map((entry) => (
               <tr key={entry.id} className='border-t'>
-                <td className='border-b p-2'>{entry.user_id}</td>
+                <td className='border-b p-2'>{entry.email}</td>
                 <td className='border-b p-2'>{entry.number}</td>
                 <td className='border-b p-2'>
                   <input
                     className='w-full rounded border p-1'
-                    value={entry.plan_carrier || ''}
+                    value={entry.plan || ''}
                     onChange={(e) =>
-                      handleUpdate(entry.id, 'plan_carrier', e.target.value)
+                      handleUpdate(entry.id, 'plan', e.target.value)
                     }
                   />
                 </td>
                 <td className='border-b p-2'>
-                  <input
+                  <select
                     className='w-full rounded border p-1'
                     value={entry.plan_status || ''}
                     onChange={(e) =>
                       handleUpdate(entry.id, 'plan_status', e.target.value)
                     }
-                  />
+                  >
+                    {!['Active', 'Inactive'].includes(entry.plan_status) && (
+                      <option value={entry.plan_status || ''}>
+                        {entry.plan_status || '未设定 / Unset'}
+                      </option>
+                    )}
+                    <option value='Active'>Active</option>
+                    <option value='Inactive'>Inactive</option>
+                  </select>
                 </td>
                 <td className='border-b p-2'>
                   <input
@@ -118,20 +140,10 @@ const AdminPortRequestsPanel = () => {
                 </td>
                 <td className='border-b p-2'>
                   <input
-                    type='date'
                     className='w-full rounded border p-1'
-                    value={entry.plan_next_bill?.split('T')[0] || ''}
+                    value={entry.reward_status || ''}
                     onChange={(e) =>
-                      handleUpdate(entry.id, 'plan_next_bill', e.target.value)
-                    }
-                  />
-                </td>
-                <td className='border-b p-2'>
-                  <input
-                    className='w-full rounded border p-1'
-                    value={entry.sim_info || ''}
-                    onChange={(e) =>
-                      handleUpdate(entry.id, 'sim_info', e.target.value)
+                      handleUpdate(entry.id, 'reward_status', e.target.value)
                     }
                   />
                 </td>
